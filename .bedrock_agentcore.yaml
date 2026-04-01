@@ -4,7 +4,7 @@ agents:
     name: search_agent
     language: python
     node_version: '20'
-    entrypoint: E:/AgentCore/search_runtime.py
+    entrypoint: E:/AgentCore/agentcore_a2a/entrypoints/search_runtime.py
     deployment_type: container
     runtime_type: null
     platform: linux/arm64
@@ -64,7 +64,7 @@ agents:
     name: summary_agent
     language: python
     node_version: '20'
-    entrypoint: E:/AgentCore/summary_runtime.py
+    entrypoint: E:/AgentCore/agentcore_a2a/entrypoints/summary_runtime.py
     deployment_type: container
     runtime_type: null
     platform: linux/arm64
@@ -124,7 +124,7 @@ agents:
     name: supervisor_agent_2
     language: python
     node_version: '20'
-    entrypoint: E:/AgentCore/supervisor_runtime.py
+    entrypoint: E:/AgentCore/agentcore_a2a/entrypoints/supervisor_runtime.py
     deployment_type: container
     runtime_type: null
     platform: linux/arm64
