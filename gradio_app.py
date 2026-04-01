@@ -13,6 +13,7 @@ from bedrock_agentcore_starter_toolkit.services.runtime import BedrockAgentCoreC
 
 BASE_DIR = Path(__file__).parent
 CONFIG_PATH = BASE_DIR / ".bedrock_agentcore.yaml"
+PINNED_AGENT_NAME = "supervisor_agent_2"
 LOG_DIR = BASE_DIR / "logs"
 LOG_DIR.mkdir(exist_ok=True)
 LOG_FILE = LOG_DIR / "gradio_agentcore_ui.log"
@@ -50,12 +51,11 @@ def load_agentcore_config() -> Dict[str, Any]:
     with CONFIG_PATH.open("r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
 
-    default_agent = data.get("default_agent")
     agents = data.get("agents", {})
-    if not default_agent or default_agent not in agents:
-        raise RuntimeError("default_agent is missing or invalid in .bedrock_agentcore.yaml")
+    if PINNED_AGENT_NAME not in agents:
+        raise RuntimeError(f"Pinned agent {PINNED_AGENT_NAME!r} is missing in .bedrock_agentcore.yaml")
 
-    agent_cfg = agents[default_agent]
+    agent_cfg = agents[PINNED_AGENT_NAME]
     agent_arn = agent_cfg.get("bedrock_agentcore", {}).get("agent_arn")
     region = agent_cfg.get("aws", {}).get("region")
 
@@ -63,7 +63,7 @@ def load_agentcore_config() -> Dict[str, Any]:
         raise RuntimeError("Agent ARN or region missing in .bedrock_agentcore.yaml")
 
     return {
-        "default_agent": default_agent,
+        "default_agent": PINNED_AGENT_NAME,
         "agent_arn": agent_arn,
         "region": region,
     }
