@@ -1,6 +1,6 @@
 # AgentCore A2A Application
 
-This repository contains a production-style proof of concept for an Agent-to-Agent style application built on AWS Bedrock AgentCore.
+This repository contains a production-style proof of concept for an Agent-to-Agent application built on AWS Bedrock AgentCore.
 
 The app has:
 
@@ -9,44 +9,44 @@ The app has:
 - a `summary` runtime for response synthesis
 - a simple Gradio UI for local testing against the deployed supervisor runtime
 
-The codebase is now organized into packages with class-based services, tools, and agents so it is easier to extend into a real application.
+The codebase is organized into packages with class-based services, tools, and agents so it is easier to extend into a real application.
 
 ## Folder Structure
 
 ```text
 E:\AgentCore
-├── agentcore_a2a/
-│   ├── agents/
-│   │   ├── db_agent.py
-│   │   ├── search_agent.py
-│   │   ├── summary_agent.py
-│   │   └── supervisor_agent.py
-│   ├── services/
-│   │   ├── model_factory.py
-│   │   ├── request_response.py
-│   │   └── runtime_invoker.py
-│   ├── tools/
-│   │   └── faq_search.py
-│   ├── ui/
-│   │   └── gradio_chat_app.py
-│   ├── config.py
-│   ├── container.py
-│   ├── runtime_apps.py
-│   └── schemas.py
-│   ├── entrypoints/
-│   │   ├── gradio_app.py
-│   │   ├── search_runtime.py
-│   │   ├── summary_runtime.py
-│   │   └── supervisor_runtime.py
-├── .bedrock_agentcore/
-│   ├── search_agent/
-│   ├── summary_agent/
-│   └── supervisor_agent_2/
-├── .bedrock_agentcore.yaml
-├── .env.local
-├── lauki_qna.csv
-├── pyproject.toml
-└── uv.lock
++-- agentcore_a2a/
+|   +-- agents/
+|   |   +-- db_agent.py
+|   |   +-- search_agent.py
+|   |   +-- summary_agent.py
+|   |   \-- supervisor_agent.py
+|   +-- services/
+|   |   +-- model_factory.py
+|   |   +-- request_response.py
+|   |   \-- runtime_invoker.py
+|   +-- tools/
+|   |   \-- faq_search.py
+|   +-- ui/
+|   |   \-- gradio_chat_app.py
+|   +-- entrypoints/
+|   |   +-- gradio_app.py
+|   |   +-- search_runtime.py
+|   |   +-- summary_runtime.py
+|   |   \-- supervisor_runtime.py
+|   +-- config.py
+|   +-- container.py
+|   +-- runtime_apps.py
+|   \-- schemas.py
++-- .bedrock_agentcore/
+|   +-- search_agent/
+|   +-- summary_agent/
+|   \-- supervisor_agent_2/
++-- .bedrock_agentcore.yaml
++-- .env.local
++-- lauki_qna.csv
++-- pyproject.toml
+\-- uv.lock
 ```
 
 ## Architecture
@@ -113,7 +113,7 @@ This makes the code easier to test and easier to extend with real database clien
 
 ## Runtime Entry Points
 
-The runtime entrypoints now live under:
+The runtime entrypoints live under:
 
 - [agentcore_a2a/entrypoints/search_runtime.py](/e:/AgentCore/agentcore_a2a/entrypoints/search_runtime.py)
 - [agentcore_a2a/entrypoints/summary_runtime.py](/e:/AgentCore/agentcore_a2a/entrypoints/summary_runtime.py)
@@ -180,7 +180,7 @@ chcp 65001 > $null
 ## Run Gradio UI
 
 ```powershell
-.\.venv\Scripts\python.exe E:\AgentCore\agentcore_a2a\entrypoints\gradio_app.py
+python -m agentcore_a2a.entrypoints.gradio_app
 ```
 
 The UI is pinned to:
@@ -230,6 +230,3 @@ $payload = @{
 - The current DB agent is intentionally safe and non-connected.
 - If you modify supervisor logic, redeploy `supervisor_agent_2`.
 - If you modify retrieval or synthesis logic, redeploy the corresponding worker runtime too.
-
-## Architecture
-
