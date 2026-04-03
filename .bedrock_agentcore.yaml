@@ -1,21 +1,21 @@
-default_agent: agentcore_multiagent
+default_agent: supervisor_agent_2
 agents:
-  agentcore_lang_runtime:
-    name: agentcore_lang_runtime
+  search_agent:
+    name: search_agent
     language: python
     node_version: '20'
-    entrypoint: E:/AgentCore/01_agentcore_runtime.py
+    entrypoint: E:/AgentCore/agentcore_a2a/entrypoints/search_runtime.py
     deployment_type: container
     runtime_type: null
     platform: linux/arm64
     container_runtime: podman
     source_path: E:\AgentCore
     aws:
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKRuntime-ap-south-1-c980c3716d
+      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKRuntime-ap-south-1-2899021ae0
       execution_role_auto_create: false
       account: '948360714466'
       region: ap-south-1
-      ecr_repository: 948360714466.dkr.ecr.ap-south-1.amazonaws.com/bedrock-agentcore-agentcore_lang_runtime
+      ecr_repository: 948360714466.dkr.ecr.ap-south-1.amazonaws.com/bedrock-agentcore-search_agent
       ecr_auto_create: false
       s3_path: null
       s3_auto_create: false
@@ -30,78 +30,18 @@ agents:
         idle_runtime_session_timeout: null
         max_lifetime: null
     bedrock_agentcore:
-      agent_id: agentcore_lang_runtime-CZEBhp6SVH
-      agent_arn: arn:aws:bedrock-agentcore:ap-south-1:948360714466:runtime/agentcore_lang_runtime-CZEBhp6SVH
-      agent_session_id: 705c9d67-f616-4fae-a237-3bfffe76ab9b
+      agent_id: search_agent-xGABJYEJCA
+      agent_arn: arn:aws:bedrock-agentcore:ap-south-1:948360714466:runtime/search_agent-xGABJYEJCA
+      agent_session_id: null
     codebuild:
-      project_name: bedrock-agentcore-agentcore_lang_runtime-builder
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKCodeBuild-ap-south-1-c980c3716d
+      project_name: bedrock-agentcore-search_agent-builder
+      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKCodeBuild-ap-south-1-2899021ae0
       source_bucket: bedrock-agentcore-codebuild-sources-948360714466-ap-south-1
     memory:
-      mode: STM_AND_LTM
-      memory_id: agentcore_lang_runtime_mem-6C52kHDYTd
-      memory_arn: arn:aws:bedrock-agentcore:ap-south-1:948360714466:memory/agentcore_lang_runtime_mem-6C52kHDYTd
-      memory_name: agentcore_lang_runtime_mem
-      event_expiry_days: 30
-      first_invoke_memory_check_done: true
-      was_created_by_toolkit: true
-    identity:
-      credential_providers: []
-      workload: null
-    aws_jwt:
-      enabled: false
-      audiences: []
-      signing_algorithm: ES384
-      issuer_url: null
-      duration_seconds: 300
-    authorizer_configuration: null
-    request_header_configuration: null
-    oauth_configuration: null
-    api_key_env_var_name: null
-    api_key_credential_provider_name: null
-    is_generated_by_agentcore_create: false
-  agentcore_memory:
-    name: agentcore_memory
-    language: python
-    node_version: '20'
-    entrypoint: E:/AgentCore/02_agentcore_memory.py
-    deployment_type: container
-    runtime_type: null
-    platform: linux/arm64
-    container_runtime: podman
-    source_path: E:\AgentCore
-    aws:
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKRuntime-ap-south-1-c5d93b0882
-      execution_role_auto_create: false
-      account: '948360714466'
-      region: ap-south-1
-      ecr_repository: 948360714466.dkr.ecr.ap-south-1.amazonaws.com/bedrock-agentcore-agentcore_memory
-      ecr_auto_create: false
-      s3_path: null
-      s3_auto_create: false
-      network_configuration:
-        network_mode: PUBLIC
-        network_mode_config: null
-      protocol_configuration:
-        server_protocol: HTTP
-      observability:
-        enabled: true
-      lifecycle_configuration:
-        idle_runtime_session_timeout: null
-        max_lifetime: null
-    bedrock_agentcore:
-      agent_id: agentcore_memory-0WHPMBDMv1
-      agent_arn: arn:aws:bedrock-agentcore:ap-south-1:948360714466:runtime/agentcore_memory-0WHPMBDMv1
-      agent_session_id: f7c6b292-b57a-4ff7-bc33-20e99a21c487
-    codebuild:
-      project_name: bedrock-agentcore-agentcore_memory-builder
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKCodeBuild-ap-south-1-c5d93b0882
-      source_bucket: bedrock-agentcore-codebuild-sources-948360714466-ap-south-1
-    memory:
-      mode: STM_AND_LTM
-      memory_id: agentcore_myagent_memory-HPEmQF7XcU
+      mode: NO_MEMORY
+      memory_id: null
       memory_arn: null
-      memory_name: agentcore_memory_memory
+      memory_name: null
       event_expiry_days: 30
       first_invoke_memory_check_done: false
       was_created_by_toolkit: false
@@ -117,25 +57,25 @@ agents:
     authorizer_configuration: null
     request_header_configuration: null
     oauth_configuration: null
-    api_key_env_var_name: null
-    api_key_credential_provider_name: null
+    api_key_env_var_name: GROQ_API_KEY
+    api_key_credential_provider_name: search_agent_groq_api_key
     is_generated_by_agentcore_create: false
-  agentcore_with_memory:
-    name: agentcore_with_memory
+  summary_agent:
+    name: summary_agent
     language: python
     node_version: '20'
-    entrypoint: E:/AgentCore/02_agentcore_memory.py
+    entrypoint: E:/AgentCore/agentcore_a2a/entrypoints/summary_runtime.py
     deployment_type: container
     runtime_type: null
     platform: linux/arm64
     container_runtime: podman
     source_path: E:\AgentCore
     aws:
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKRuntime-ap-south-1-7265038260
+      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKRuntime-ap-south-1-ad0d38ef06
       execution_role_auto_create: false
       account: '948360714466'
       region: ap-south-1
-      ecr_repository: 948360714466.dkr.ecr.ap-south-1.amazonaws.com/bedrock-agentcore-agentcore_with_memory
+      ecr_repository: 948360714466.dkr.ecr.ap-south-1.amazonaws.com/bedrock-agentcore-summary_agent
       ecr_auto_create: false
       s3_path: null
       s3_auto_create: false
@@ -150,18 +90,18 @@ agents:
         idle_runtime_session_timeout: null
         max_lifetime: null
     bedrock_agentcore:
-      agent_id: agentcore_with_memory-4GI6ID9Qik
-      agent_arn: arn:aws:bedrock-agentcore:ap-south-1:948360714466:runtime/agentcore_with_memory-4GI6ID9Qik
-      agent_session_id: 12af7911-d380-4b18-8bda-a6406af8bfef
+      agent_id: summary_agent-hkQC5vDtik
+      agent_arn: arn:aws:bedrock-agentcore:ap-south-1:948360714466:runtime/summary_agent-hkQC5vDtik
+      agent_session_id: null
     codebuild:
-      project_name: bedrock-agentcore-agentcore_with_memory-builder
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKCodeBuild-ap-south-1-7265038260
+      project_name: bedrock-agentcore-summary_agent-builder
+      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKCodeBuild-ap-south-1-ad0d38ef06
       source_bucket: bedrock-agentcore-codebuild-sources-948360714466-ap-south-1
     memory:
-      mode: STM_AND_LTM
-      memory_id: agentcore_myagent_memory-HPEmQF7XcU
+      mode: NO_MEMORY
+      memory_id: null
       memory_arn: null
-      memory_name: agentcore_with_memory_memory
+      memory_name: null
       event_expiry_days: 30
       first_invoke_memory_check_done: false
       was_created_by_toolkit: false
@@ -177,25 +117,25 @@ agents:
     authorizer_configuration: null
     request_header_configuration: null
     oauth_configuration: null
-    api_key_env_var_name: null
-    api_key_credential_provider_name: null
+    api_key_env_var_name: GROQ_API_KEY
+    api_key_credential_provider_name: summary_agent_groq_api_key
     is_generated_by_agentcore_create: false
-  agentcore_correct_memory:
-    name: agentcore_correct_memory
+  supervisor_agent_2:
+    name: supervisor_agent_2
     language: python
     node_version: '20'
-    entrypoint: E:/AgentCore/02_agentcore_memory.py
+    entrypoint: E:/AgentCore/agentcore_a2a/entrypoints/supervisor_runtime.py
     deployment_type: container
     runtime_type: null
     platform: linux/arm64
     container_runtime: podman
     source_path: E:\AgentCore
     aws:
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKRuntime-ap-south-1-6dbeb07d76
+      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKRuntime-ap-south-1-733a737465
       execution_role_auto_create: false
       account: '948360714466'
       region: ap-south-1
-      ecr_repository: 948360714466.dkr.ecr.ap-south-1.amazonaws.com/bedrock-agentcore-agentcore_correct_memory
+      ecr_repository: 948360714466.dkr.ecr.ap-south-1.amazonaws.com/bedrock-agentcore-supervisor_agent_2
       ecr_auto_create: false
       s3_path: null
       s3_auto_create: false
@@ -210,18 +150,18 @@ agents:
         idle_runtime_session_timeout: null
         max_lifetime: null
     bedrock_agentcore:
-      agent_id: agentcore_correct_memory-k9mNgWCtHq
-      agent_arn: arn:aws:bedrock-agentcore:ap-south-1:948360714466:runtime/agentcore_correct_memory-k9mNgWCtHq
-      agent_session_id: 19c80167-ee2f-4daa-b9e3-464f73d051bf
+      agent_id: supervisor_agent_2-mKa1CtEddC
+      agent_arn: arn:aws:bedrock-agentcore:ap-south-1:948360714466:runtime/supervisor_agent_2-mKa1CtEddC
+      agent_session_id: null
     codebuild:
-      project_name: bedrock-agentcore-agentcore_correct_memory-builder
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKCodeBuild-ap-south-1-6dbeb07d76
+      project_name: bedrock-agentcore-supervisor_agent_2-builder
+      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKCodeBuild-ap-south-1-733a737465
       source_bucket: bedrock-agentcore-codebuild-sources-948360714466-ap-south-1
     memory:
       mode: STM_AND_LTM
       memory_id: agentcore_myagent_memory-HPEmQF7XcU
       memory_arn: null
-      memory_name: agentcore_correct_memory_memory
+      memory_name: supervisor_agent_2_memory
       event_expiry_days: 30
       first_invoke_memory_check_done: false
       was_created_by_toolkit: false
@@ -237,66 +177,6 @@ agents:
     authorizer_configuration: null
     request_header_configuration: null
     oauth_configuration: null
-    api_key_env_var_name: null
-    api_key_credential_provider_name: null
-    is_generated_by_agentcore_create: false
-  agentcore_multiagent:
-    name: agentcore_multiagent
-    language: python
-    node_version: '20'
-    entrypoint: E:/AgentCore/02_agentcore_memory.py
-    deployment_type: container
-    runtime_type: null
-    platform: linux/arm64
-    container_runtime: podman
-    source_path: E:\AgentCore
-    aws:
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKRuntime-ap-south-1-34eb85a7cd
-      execution_role_auto_create: false
-      account: '948360714466'
-      region: ap-south-1
-      ecr_repository: 948360714466.dkr.ecr.ap-south-1.amazonaws.com/bedrock-agentcore-agentcore_multiagent
-      ecr_auto_create: false
-      s3_path: null
-      s3_auto_create: false
-      network_configuration:
-        network_mode: PUBLIC
-        network_mode_config: null
-      protocol_configuration:
-        server_protocol: HTTP
-      observability:
-        enabled: true
-      lifecycle_configuration:
-        idle_runtime_session_timeout: null
-        max_lifetime: null
-    bedrock_agentcore:
-      agent_id: agentcore_multiagent-mNtHnu3n0q
-      agent_arn: arn:aws:bedrock-agentcore:ap-south-1:948360714466:runtime/agentcore_multiagent-mNtHnu3n0q
-      agent_session_id: aba1ed93-3144-46bc-b301-0bf0c3c6d17c
-    codebuild:
-      project_name: bedrock-agentcore-agentcore_multiagent-builder
-      execution_role: arn:aws:iam::948360714466:role/AmazonBedrockAgentCoreSDKCodeBuild-ap-south-1-34eb85a7cd
-      source_bucket: bedrock-agentcore-codebuild-sources-948360714466-ap-south-1
-    memory:
-      mode: STM_AND_LTM
-      memory_id: agentcore_myagent_memory-HPEmQF7XcU
-      memory_arn: null
-      memory_name: agentcore_multiagent_memory
-      event_expiry_days: 30
-      first_invoke_memory_check_done: false
-      was_created_by_toolkit: false
-    identity:
-      credential_providers: []
-      workload: null
-    aws_jwt:
-      enabled: false
-      audiences: []
-      signing_algorithm: ES384
-      issuer_url: null
-      duration_seconds: 300
-    authorizer_configuration: null
-    request_header_configuration: null
-    oauth_configuration: null
-    api_key_env_var_name: null
-    api_key_credential_provider_name: null
+    api_key_env_var_name: GROQ_API_KEY
+    api_key_credential_provider_name: supervisor_agent_2_groq_api_key
     is_generated_by_agentcore_create: false

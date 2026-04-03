@@ -38,4 +38,4 @@ COPY . .
 
 # Use the full module path
 
-CMD ["opentelemetry-instrument", "python", "-m", "02_agentcore_memory"]
+CMD ["opentelemetry-instrument", "python", "-m", "summary_runtime"]

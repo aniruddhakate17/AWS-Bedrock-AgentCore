@@ -1,401 +1,232 @@
-# AWS Bedrock AgentCore Multi-Agent Demo
+# AgentCore A2A Application
 
-This project is a lightweight FAQ assistant built on AWS Bedrock AgentCore.
+This repository contains a production-style proof of concept for an Agent-to-Agent application built on AWS Bedrock AgentCore.
 
-It includes:
+The app has:
 
-- a deployed AgentCore runtime entrypoint
-- a supervisor-style multi-agent flow inside the runtime
-- internal worker agents for search, summary, and DB-style queries
-- AgentCore memory support with `actor_id` and `thread_id`
-- a local Gradio UI that can call the deployed AgentCore runtime
+- a `supervisor` runtime that receives user requests
+- a `search` runtime for FAQ retrieval
+- a `summary` runtime for response synthesis
+- a simple Gradio UI for local testing against the deployed supervisor runtime
 
-The codebase is intentionally kept lightweight so it can fit within Bedrock AgentCore free-tier style image constraints.
+The codebase is organized into packages with class-based services, tools, and agents so it is easier to extend into a real application.
+
+## Folder Structure
+
+```text
+E:\AgentCore
++-- agentcore_a2a/
+|   +-- agents/
+|   |   +-- db_agent.py
+|   |   +-- search_agent.py
+|   |   +-- summary_agent.py
+|   |   \-- supervisor_agent.py
+|   +-- services/
+|   |   +-- model_factory.py
+|   |   +-- request_response.py
+|   |   \-- runtime_invoker.py
+|   +-- tools/
+|   |   \-- faq_search.py
+|   +-- ui/
+|   |   \-- gradio_chat_app.py
+|   +-- entrypoints/
+|   |   +-- gradio_app.py
+|   |   +-- search_runtime.py
+|   |   +-- summary_runtime.py
+|   |   \-- supervisor_runtime.py
+|   +-- config.py
+|   +-- container.py
+|   +-- runtime_apps.py
+|   \-- schemas.py
++-- .bedrock_agentcore/
+|   +-- search_agent/
+|   +-- summary_agent/
+|   \-- supervisor_agent_2/
++-- .bedrock_agentcore.yaml
++-- .env.local
++-- lauki_qna.csv
++-- pyproject.toml
+\-- uv.lock
+```
 
 ## Architecture
 
-The main deployed runtime is:
+### 1. Supervisor Runtime
 
-- [02_agentcore_memory.py](/e:/AgentCore/02_agentcore_memory.py)
+User requests first hit `supervisor_agent_2`.
 
-That file currently hosts:
+The supervisor:
 
-- `Supervisor Agent`
-- `Search Agent`
-- `Summary Agent`
-- `DB Agent` placeholder
-- AgentCore memory integration
-- the AgentCore runtime entrypoint
+- classifies the request
+- selects a route
+- invokes worker runtimes
+- merges results into a final response
 
-Other important files:
+Main class:
 
-- [00_langgraph_agent.py](/e:/AgentCore/00_langgraph_agent.py): simple local FAQ agent example
-- [01_agentcore_runtime.py](/e:/AgentCore/01_agentcore_runtime.py): lightweight single-agent AgentCore runtime
-- [gradio_app.py](/e:/AgentCore/gradio_app.py): local Gradio chat UI for the deployed runtime
-- [lauki_qna.csv](/e:/AgentCore/lauki_qna.csv): FAQ knowledge source
-- [pyproject.toml](/e:/AgentCore/pyproject.toml): project dependencies
-- [.bedrock_agentcore.yaml](/e:/AgentCore/.bedrock_agentcore.yaml): AgentCore runtime configuration
+- `agentcore_a2a.agents.supervisor_agent.SupervisorAgent`
 
-## Prerequisites
+### 2. Search Runtime
 
-Install these before starting:
+The search runtime retrieves relevant FAQ entries from `lauki_qna.csv` using a lightweight lexical search tool and then asks the model to produce a grounded answer.
+
+Main classes:
+
+- `agentcore_a2a.tools.faq_search.FAQRepository`
+- `agentcore_a2a.tools.faq_search.FAQSearchTool`
+- `agentcore_a2a.agents.search_agent.SearchAgent`
+
+### 3. Summary Runtime
+
+The summary runtime takes worker outputs and synthesizes a concise user-facing answer.
+
+Main class:
+
+- `agentcore_a2a.agents.summary_agent.SummaryAgent`
+
+### 4. DB Agent
+
+The DB agent is currently a placeholder for future production integration.
+
+Main class:
+
+- `agentcore_a2a.agents.db_agent.DatabaseAgent`
+
+It does not connect to a real database yet. It intentionally avoids hallucinating account-specific data.
+
+## Class-Based Design
+
+The application is assembled through a lightweight dependency container:
+
+- `agentcore_a2a.container.ApplicationContainer`
+
+That container wires:
+
+- config loading
+- model creation
+- FAQ repository/tooling
+- message builders
+- runtime invocation
+- agent classes
+
+This makes the code easier to test and easier to extend with real database clients, monitoring, retries, or external APIs.
+
+## Runtime Entry Points
+
+The runtime entrypoints live under:
+
+- [agentcore_a2a/entrypoints/search_runtime.py](/e:/AgentCore/agentcore_a2a/entrypoints/search_runtime.py)
+- [agentcore_a2a/entrypoints/summary_runtime.py](/e:/AgentCore/agentcore_a2a/entrypoints/summary_runtime.py)
+- [agentcore_a2a/entrypoints/supervisor_runtime.py](/e:/AgentCore/agentcore_a2a/entrypoints/supervisor_runtime.py)
+
+They delegate into:
+
+- `agentcore_a2a.runtime_apps`
+
+## UI Entry Point
+
+The Gradio UI entrypoint is:
+
+- [agentcore_a2a/entrypoints/gradio_app.py](/e:/AgentCore/agentcore_a2a/entrypoints/gradio_app.py)
+
+It delegates into:
+
+- `agentcore_a2a.ui.gradio_chat_app.GradioChatApplication`
+
+## Local Setup
+
+### Prerequisites
 
 - Python `3.13`
 - `uv`
-- AWS CLI
-- access to AWS Bedrock AgentCore in your AWS account
+- AWS CLI configured
+- access to Bedrock AgentCore in your AWS account
 
-Optional but helpful:
-
-- PowerShell on Windows
-- Docker or Podman if you plan to build/deploy runtimes locally through the toolkit
-
-## 1. Clone And Enter The Project
-
-```powershell
-git clone <your-repo-url>
-cd E:\AgentCore
-```
-
-## 2. Create The Environment
-
-If you do not already have a `.venv`, create one:
+### Create Environment
 
 ```powershell
 uv venv
-```
-
-Activate it:
-
-```powershell
 .\.venv\Scripts\Activate.ps1
-```
-
-## 3. Install Dependencies
-
-Install everything from the lockfile:
-
-```powershell
 uv sync
 ```
 
-If the lockfile needs to be refreshed first:
+### Create Secrets File
 
-```powershell
-uv lock
-uv sync
-```
-
-Why `uv sync` matters:
-
-- it installs the exact project dependencies from [uv.lock](/e:/AgentCore/uv.lock)
-- it avoids dependency drift across machines
-- it ensures the same packages are used for local testing and deployment packaging
-
-## 4. Configure Environment Variables
-
-Create or update [.env](/e:/AgentCore/.env).
-
-At minimum, set:
+Create `.env.local`:
 
 ```env
-GROQ_API_KEY=your_groq_api_key_here
-HF_TOKEN=your_optional_huggingface_token_here
+GROQ_API_KEY=your_groq_api_key
 ```
-
-Notes:
-
-- `GROQ_API_KEY` is required for the LLM calls used by the runtime.
-- `HF_TOKEN` is optional in the current lightweight version.
-- Do not commit real secrets to source control.
-
-## 5. Configure AWS Access
-
-Make sure AWS CLI is configured for the same account where your AgentCore runtime exists:
-
-```powershell
-aws configure
-```
-
-Then verify identity:
-
-```powershell
-aws sts get-caller-identity
-```
-
-You should see the correct AWS account ID.
 
 Important:
 
-- launch the app from the same terminal where AWS credentials work
-- if you use SSO or temporary credentials, refresh them before starting the UI
-- if credentials expire while the Gradio app is open, restart the app after re-authenticating
+- the toolkit reads provider API keys from `.env.local`
+- not from `.env`
 
-## 6. Verify Local Python
+## Deploy Order
 
-Always run this project from the local `.venv`.
-
-Check the interpreter:
+Deploy worker runtimes first, then deploy the supervisor.
 
 ```powershell
-.\.venv\Scripts\python.exe -c "import sys; print(sys.executable)"
+$env:PYTHONIOENCODING='utf-8'
+$env:PYTHONUTF8='1'
+chcp 65001 > $null
+
+.\.venv\Scripts\agentcore.exe deploy -a search_agent
+.\.venv\Scripts\agentcore.exe deploy -a summary_agent
+.\.venv\Scripts\agentcore.exe deploy -a supervisor_agent_2
 ```
 
-It should point to:
-
-```text
-E:\AgentCore\.venv\Scripts\python.exe
-```
-
-## 7. Run The Gradio UI
-
-Start the local UI:
+## Run Gradio UI
 
 ```powershell
-.\.venv\Scripts\python.exe gradio_app.py
+python -m agentcore_a2a.entrypoints.gradio_app
 ```
 
-Then open the URL shown in the terminal, usually:
+The UI is pinned to:
 
-```text
-http://127.0.0.1:7860
+- `supervisor_agent_2`
+
+## Direct Invoke
+
+When invoking deployed runtimes directly, include `--user-id`:
+
+```powershell
+$payload = @{
+  prompt    = "What is roaming activation?"
+  actor_id  = "test-user"
+  thread_id = "thread-1234567890abcdef1234567890abcdef"
+} | ConvertTo-Json -Compress
+
+.\.venv\Scripts\agentcore.exe invoke --agent supervisor_agent_2 --user-id test-user $payload
 ```
 
-The Gradio UI:
+## Example Test Prompts
 
-- reads [.bedrock_agentcore.yaml](/e:/AgentCore/.bedrock_agentcore.yaml)
-- finds the `default_agent`
-- calls the deployed AgentCore runtime over AWS
-- keeps `actor_id` and `thread_id` per chat
-- logs every request and response
-
-## 8. Log Files
-
-The Gradio UI writes logs to:
-
-- [logs/gradio_agentcore_ui.log](/e:/AgentCore/logs/gradio_agentcore_ui.log)
-- [logs/gradio_agentcore_ui.jsonl](/e:/AgentCore/logs/gradio_agentcore_ui.jsonl)
-
-Use these to debug:
-
-- runtime invocation errors
-- route selection
-- payload/response behavior
-- session issues
-
-## 9. How The Multi-Agent Runtime Works
-
-Inside [02_agentcore_memory.py](/e:/AgentCore/02_agentcore_memory.py):
-
-- `Supervisor Agent` decides which worker(s) to use
-- `Search Agent` handles FAQ retrieval from the CSV knowledge base
-- `Summary Agent` combines findings into a user-facing answer
-- `DB Agent` currently acts as a safe placeholder and does not query a live database
-
-Typical routes:
-
-- `search_only`
-- `db_only`
-- `search_then_summary`
-- `db_then_summary`
-- `search_and_db_then_summary`
-
-## 10. Suggested Test Questions
-
-Search-focused questions:
+### Search
 
 - `What is roaming activation?`
-- `Are international roaming packs available?`
 - `How do I activate international roaming?`
-- `What is the billing cycle for postpaid?`
 
-DB-style questions:
+### Search + Summary
+
+- `Summarize how roaming activation works.`
+- `Explain roaming charges in simple terms.`
+
+### DB Placeholder
 
 - `What is my current plan?`
 - `What is my billing status?`
-- `Do I have any unpaid invoices?`
 
-Mixed routing questions:
+### Mixed
 
+- `What is my current plan and does it include roaming?`
 - `I am traveling tomorrow. Do I have roaming active and what are the charges?`
-- `What is my current plan, and does it include roaming?`
-- `Summarize my billing status and explain roaming charges.`
 
-Expected behavior:
+## Notes
 
-- Search questions should hit Search or Search + Summary
-- DB questions should hit the DB route
-- mixed questions should hit multiple workers
-
-## 11. Deploying To Bedrock AgentCore
-
-This repo uses [.bedrock_agentcore.yaml](/e:/AgentCore/.bedrock_agentcore.yaml) as the AgentCore runtime config file.
-
-The current default runtime is:
-
-- `agentcore_multiagent`
-
-Its entrypoint is:
-
-- [02_agentcore_memory.py](/e:/AgentCore/02_agentcore_memory.py)
-
-Typical workflow:
-
-1. Update code
-2. Refresh dependencies if needed:
-
-```powershell
-uv lock
-uv sync
-```
-
-3. Deploy using the AgentCore toolkit/CLI you already configured
-4. Confirm the runtime status
-5. Test invocation
-
-If your local toolkit is installed, the common commands are typically along these lines:
-
-```powershell
-agentcore status
-agentcore invoke '{"prompt":"What is roaming activation?"}'
-```
-
-Use the runtime already defined in [.bedrock_agentcore.yaml](/e:/AgentCore/.bedrock_agentcore.yaml) rather than creating a brand-new one unless you intend to.
-
-## 12. Important Note About This Repo Config
-
-The checked-in [.bedrock_agentcore.yaml](/e:/AgentCore/.bedrock_agentcore.yaml) currently contains runtime IDs, ARNs, ECR repositories, and AWS-account-specific values from an existing environment.
-
-A new developer should treat those values as environment-specific.
-
-Before deploying from a new AWS account, update:
-
-- AWS account ID
-- region
-- runtime IDs and ARNs
-- execution roles
-- ECR repositories
-- memory IDs
-
-Do not assume these values will work in another AWS account unchanged.
-
-## 13. Common Problems
-
-### `AccessDeniedException` with signature mismatch
-
-This usually means one of these:
-
-- AWS credentials expired
-- wrong AWS profile or terminal session
-- Gradio app started in a shell that does not match your working AWS identity
-- stale app process still running
-
-What to do:
-
-1. Open a new terminal
-2. Activate `.venv`
-3. Run:
-
-```powershell
-aws sts get-caller-identity
-```
-
-4. Start the app again with:
-
-```powershell
-.\.venv\Scripts\python.exe gradio_app.py
-```
-
-### `ServiceQuotaExceededException` during deploy
-
-This project previously hit AgentCore image size limits.
-
-To reduce image size, the repo was intentionally changed to remove heavyweight ML dependencies like:
-
-- `torch`
-- `sentence-transformers`
-- `faiss-cpu`
-- Hugging Face embedding/vector-store packages
-
-The current retrieval path uses lightweight lexical FAQ search instead.
-
-### `python` command uses the wrong interpreter
-
-Always prefer:
-
-```powershell
-.\.venv\Scripts\python.exe
-```
-
-rather than relying on system `python`.
-
-## 14. Project Dependency Notes
-
-The current project intentionally keeps dependencies small:
-
-- `bedrock-agentcore`
-- `bedrock-agentcore-starter-toolkit`
-- `gradio`
-- `langchain-groq`
-- `langchain[aws]`
-- `langgraph`
-- `langgraph-checkpoint-aws`
-
-If you add large ML packages again, the AgentCore deployment image may become too large.
-
-## 15. Recommended First-Time Setup Checklist
-
-For a new developer, the safest sequence is:
-
-1. Install Python `3.13`
-2. Install `uv`
-3. Install AWS CLI
-4. Clone the repo
-5. Run `uv venv`
-6. Activate `.venv`
-7. Run `uv sync`
-8. Create `.env`
-9. Run `aws sts get-caller-identity`
-10. Launch `gradio_app.py`
-11. Test a few prompts
-12. Only then attempt AgentCore deployment
-
-## 16. Useful Commands
-
-Refresh dependencies:
-
-```powershell
-uv lock
-uv sync
-```
-
-Compile-check key files:
-
-```powershell
-python -m py_compile 00_langgraph_agent.py
-python -m py_compile 01_agentcore_runtime.py
-python -m py_compile 02_agentcore_memory.py
-python -m py_compile gradio_app.py
-```
-
-Run the Gradio UI:
-
-```powershell
-.\.venv\Scripts\python.exe gradio_app.py
-```
-
-Check AWS identity:
-
-```powershell
-aws sts get-caller-identity
-```
-
-## 17. Next Improvements
-
-Possible follow-up improvements:
-
-- move supervisor/worker logic out of [02_agentcore_memory.py](/e:/AgentCore/02_agentcore_memory.py) into separate modules
-- replace the DB placeholder agent with a real read-only database integration
-- add log viewing directly inside the Gradio UI
-- clean up the runtime response shape so the UI does not need fallback parsing
-
+- `search_agent` and `summary_agent` should remain stateless workers.
+- `supervisor_agent_2` is the only runtime your frontend should call directly.
+- The current DB agent is intentionally safe and non-connected.
+- If you modify supervisor logic, redeploy `supervisor_agent_2`.
+- If you modify retrieval or synthesis logic, redeploy the corresponding worker runtime too.

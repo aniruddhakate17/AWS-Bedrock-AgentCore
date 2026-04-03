@@ -13,3 +13,6 @@ dependencies = [
     "langgraph>=1.0.4",
     "langgraph-checkpoint-aws>=1.0.1",
 ]
+
+[tool.setuptools.packages.find]
+include = ["agentcore_a2a*"]
