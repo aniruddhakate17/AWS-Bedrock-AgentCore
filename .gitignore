@@ -1,0 +1,55 @@
+# Python caches and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Build and packaging artifacts
+build/
+dist/
+*.egg-info/
+.cache/
+.uv/
+.tox/
+.nox/
+.hypothesis/
+.pyre/
+.pytype/
+.dmypy.json
+.pytype/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+pip-wheel-metadata/
+
+# Tooling caches
+.gradio/
+.streamlit/
+
+# Logs and runtime output
+logs/
+*.log
+
+# AgentCore generated artifacts
+.bedrock_agentcore/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
